@@ -9,6 +9,13 @@ type Emoted @entity(immutable: true) {
   token: Token!
 }
 
+type EmojiCount @entity {
+  id: ID!
+  emoji: String! # string
+  token: Token!
+  count: BigInt!
+}
+
 type Emote @entity {
   id: ID!
   emoter: Bytes! # address
@@ -22,6 +29,7 @@ type Token @entity {
   contract: TokenContract!
   tokenId: BigInt!
   emotes: [Emoted!]! @derivedFrom(field: "token")
+  emojiCounts: [EmojiCount!]! @derivedFrom(field: "token")
 }
 
 type TokenContract @entity {

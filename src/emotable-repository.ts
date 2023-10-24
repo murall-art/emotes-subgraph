@@ -1,14 +1,19 @@
+import { BigInt } from '@graphprotocol/graph-ts'
 import { Emoted as EmotedEvent } from '../generated/EmotableRepository/EmotableRepository'
-import { Emote, Emoted, Token, TokenContract } from '../generated/schema'
+import {
+  EmojiCount,
+  Emote,
+  Emoted,
+  Token,
+  TokenContract
+} from '../generated/schema'
 import { isValidEmoteAddress } from './constants_polygon'
 
 export function handleEmoted (event: EmotedEvent): void {
-  if(!isValidEmoteAddress(event.params.collection)) {
+  if (!isValidEmoteAddress(event.params.collection)) {
     return
   }
-  let entity = new Emoted(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
+
   let tokenContract = TokenContract.load(event.params.collection.toHex())
   if (tokenContract == null) {
     tokenContract = new TokenContract(event.params.collection.toHex())
@@ -25,16 +30,34 @@ export function handleEmoted (event: EmotedEvent): void {
     token.save()
   }
 
-  entity.emoter = event.params.emoter
-  entity.token = token.id
-  entity.emoji = event.params.emoji
-  entity.on = event.params.on
+  let emoteCountId =
+    event.params.collection.toHex() +
+    '_' +
+    tokenId.toString() +
+    '_' +
+    event.params.emoji
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  let emoteCount = EmojiCount.load(emoteCountId)
+  if (emoteCount == null) {
+    emoteCount = new EmojiCount(emoteCountId)
+    emoteCount.token = token.id
+    emoteCount.emoji = event.params.emoji
+    emoteCount.count = BigInt.fromI32(0)
+    emoteCount.save()
+  }
 
-  entity.save()
+  let emotedEvent = new Emoted(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  )
+  emotedEvent.emoter = event.params.emoter
+  emotedEvent.token = token.id
+  emotedEvent.emoji = event.params.emoji
+  emotedEvent.on = event.params.on
+  emotedEvent.blockNumber = event.block.number
+  emotedEvent.blockTimestamp = event.block.timestamp
+  emotedEvent.transactionHash = event.transaction.hash
+
+  emotedEvent.save()
 
   let emoteId =
     event.params.emoter.toHex() +
@@ -51,7 +74,20 @@ export function handleEmoted (event: EmotedEvent): void {
     emote.token = token.id
     emote.emoji = event.params.emoji
     emote.emoter = event.params.emoter
+    // first time emote - increment count if on
+    if (event.params.on) {
+      emoteCount.count = emoteCount.count.plus(BigInt.fromI32(1))
+    }
+  } else {
+    // emote already exists - increment/decrement count if on value changed
+    if (emote.on && !event.params.on) {
+      emoteCount.count = emoteCount.count.minus(BigInt.fromI32(1))
+    } else if (!emote.on && event.params.on) {
+      emoteCount.count = emoteCount.count.plus(BigInt.fromI32(1))
+    }
   }
   emote.on = event.params.on
   emote.save()
+  emoteCount.save()
+  token.save()
 }
