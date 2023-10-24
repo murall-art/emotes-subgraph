@@ -7,7 +7,7 @@ import {
   Token,
   TokenContract
 } from '../generated/schema'
-import { isValidEmoteAddress } from './constants_polygon'
+import { isValidEmoteAddress } from './constants_ethereum'
 
 export function handleEmoted (event: EmotedEvent): void {
   if (!isValidEmoteAddress(event.params.collection)) {
@@ -20,6 +20,7 @@ export function handleEmoted (event: EmotedEvent): void {
     tokenContract.address = event.params.collection
     tokenContract.save()
   }
+
   let tokenId = event.params.tokenId
   let id = event.params.collection.toHex() + '_' + tokenId.toString()
   let token = Token.load(id)
@@ -87,6 +88,7 @@ export function handleEmoted (event: EmotedEvent): void {
     }
   }
   emote.on = event.params.on
+
   emote.save()
   emoteCount.save()
   token.save()

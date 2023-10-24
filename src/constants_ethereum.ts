@@ -1,8 +1,5 @@
 import { Address } from '@graphprotocol/graph-ts'
 
-export let PAINT_TOKEN_ADDRESS = Address.fromString(
-  '0x4C6eC08CF3fc987c6C4BEB03184D335A2dFc4042'
-)
 export let MURALL_NFT_ADDRESS = Address.fromString(
   '0x5BB3d01F32687f92F8636799687E55cba0627704'
 )
