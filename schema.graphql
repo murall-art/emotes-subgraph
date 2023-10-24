@@ -1,0 +1,11 @@
+type Emoted @entity(immutable: true) {
+  id: Bytes!
+  emoter: Bytes! # address
+  collection: Bytes! # address
+  tokenId: BigInt! # uint256
+  emoji: String! # string
+  on: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
