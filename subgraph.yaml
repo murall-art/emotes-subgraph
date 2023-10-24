@@ -4,10 +4,16 @@ schema:
 dataSources:
   - kind: ethereum
     name: EmotableRepository
+    # use this for ethereum 
+    # network: mainnet
     network: matic
     source:
       address: "0x3110735F0b8e71455bAe1356a33e428843bCb9A1"
       abi: EmotableRepository
+      # startBlock for polygon
+      startBlock: 48285185
+      # startBlock for ethereum
+      # startBlock: 18300285
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
