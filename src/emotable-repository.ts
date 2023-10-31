@@ -9,30 +9,31 @@ import {
 } from '../generated/schema'
 import { isValidEmoteAddress } from './constants_ethereum'
 
-export function handleEmoted (event: EmotedEvent): void {
-  if (!isValidEmoteAddress(event.params.collection)) {
+export function handleEmoted(event: EmotedEvent): void {
+  let collection = event.params.collection
+  if (!isValidEmoteAddress(collection)) {
     return
   }
 
-  let tokenContract = TokenContract.load(event.params.collection.toHex())
+  let tokenContract = TokenContract.load(collection.toHex())
   if (tokenContract == null) {
-    tokenContract = new TokenContract(event.params.collection.toHex())
-    tokenContract.address = event.params.collection
+    tokenContract = new TokenContract(collection.toHex())
+    tokenContract.address = collection
     tokenContract.save()
   }
-
+  
   let tokenId = event.params.tokenId
-  let id = event.params.collection.toHex() + '_' + tokenId.toString()
-  let token = Token.load(id)
+  let tokenEntityId = collection.toHex() + '_' + tokenId.toString()
+  let token = Token.load(tokenEntityId)
   if (token == null) {
-    token = new Token(id)
+    token = new Token(tokenEntityId)
     token.tokenId = tokenId
     token.contract = tokenContract.id
     token.save()
   }
 
   let emoteCountId =
-    event.params.collection.toHex() +
+    collection.toHex() +
     '_' +
     tokenId.toString() +
     '_' +
@@ -61,13 +62,13 @@ export function handleEmoted (event: EmotedEvent): void {
   emotedEvent.save()
 
   let emoteId =
+    collection.toHex() +
+    '_' +
+    tokenId.toString() +
+    '_' +
     event.params.emoter.toHex() +
     '_' +
-    event.params.emoji +
-    '_' +
-    event.params.collection.toHex() +
-    '_' +
-    tokenId.toString()
+    event.params.emoji
 
   let emote = Emote.load(emoteId)
   if (emote == null) {
