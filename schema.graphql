@@ -28,7 +28,7 @@ type Token @entity {
   id: ID!
   contract: TokenContract!
   tokenId: BigInt!
-  emotes: [Emoted!]! @derivedFrom(field: "token")
+  emotes: [Emote!]! @derivedFrom(field: "token")
   emojiCounts: [EmojiCount!]! @derivedFrom(field: "token")
 }
 

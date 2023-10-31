@@ -7,7 +7,7 @@ import {
   Token,
   TokenContract
 } from '../generated/schema'
-import { isValidEmoteAddress } from './constants_ethereum'
+import { isValidEmoteAddress } from './constants_polygon'
 
 export function handleEmoted(event: EmotedEvent): void {
   let collection = event.params.collection
@@ -21,7 +21,7 @@ export function handleEmoted(event: EmotedEvent): void {
     tokenContract.address = collection
     tokenContract.save()
   }
-  
+
   let tokenId = event.params.tokenId
   let tokenEntityId = collection.toHex() + '_' + tokenId.toString()
   let token = Token.load(tokenEntityId)
@@ -33,11 +33,7 @@ export function handleEmoted(event: EmotedEvent): void {
   }
 
   let emoteCountId =
-    collection.toHex() +
-    '_' +
-    tokenId.toString() +
-    '_' +
-    event.params.emoji
+    collection.toHex() + '_' + tokenId.toString() + '_' + event.params.emoji
 
   let emoteCount = EmojiCount.load(emoteCountId)
   if (emoteCount == null) {
@@ -61,14 +57,14 @@ export function handleEmoted(event: EmotedEvent): void {
 
   emotedEvent.save()
 
-  let emoteId =
-    collection.toHex() +
-    '_' +
-    tokenId.toString() +
-    '_' +
-    event.params.emoter.toHex() +
-    '_' +
-    event.params.emoji
+  let emoteId = 'emote-'
+    .concat(collection.toHex())
+    .concat('-')
+    .concat(tokenId.toString())
+    .concat('-')
+    .concat(event.params.emoter.toHex())
+    .concat('-')
+    .concat(event.params.emoji)
 
   let emote = Emote.load(emoteId)
   if (emote == null) {
